@@ -2,21 +2,24 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+//Assuming products numbered from 1 to P
+//Assuming files numebered from 1 to N
+//Also I assume that are at most 100000 different products.
+//And as many files as are needed
 int n;
 int marker = 1;
 pthread_mutex_t getNextM;
 pthread_mutex_t product[100000];
 int count[100000];
 int p;
-
+// get next file to work
 int getNext(){
 	int next;
-	printf("getNext");
 	
 	next = marker;
-	marker++;
+	
 	if(marker <=n){
+		marker++;
 		return next;
 	}else
 		return -1;
@@ -28,14 +31,15 @@ void* counter(void * bla){
 	int id=  (int) bla;
 	char fileName[50];
 	FILE * currentFile;
-	
+	// lock the on getNext to avoid conflict
 	pthread_mutex_lock(&getNextM);
 	int next = getNext();
 	pthread_mutex_unlock(&getNextM);
 	printf("%dGot activity%d\n",id,next);
+	// if no more files end;
 	if(next == -1) return NULL;
 	printf("%dGot activity%d\n",id,next);
-
+	
 	sprintf(fileName,"%d.in",next);
 	printf("%s\n",fileName);
 	currentFile = fopen(fileName,"r");
@@ -89,10 +93,10 @@ int main(){
 	}	
 	printf("Join Threads\n");
 	for(i =0; i<t; i++){
-		pthread_join(&threads[i], NULL);
+		pthread_join(threads[i], NULL);
 	}
 	printf("Print Counter\n");
-	for(i =0; i<n; i++){
+	for(i =1; i<=n; i++){
 		printf("Product %d : %d\n",i,count[i]);
 	}
 }
